@@ -1,4 +1,5 @@
-import { createApp } from 'vue/dist/vue.esm-bundler.js'
+import { createApp } from 'vue'
+import Papa from 'papaparse'
 
 createApp({
     data() {
@@ -24,7 +25,19 @@ createApp({
                 }
                 
                 const csvText = await response.text()
-                this.projects = this.parseCSV(csvText)
+                
+                // Use PapaParse for robust CSV parsing
+                const parsed = Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: (header) => header.trim()
+                })
+                
+                if (parsed.errors.length > 0) {
+                    console.warn('CSV parsing warnings:', parsed.errors)
+                }
+                
+                this.projects = parsed.data
                 
             } catch (err) {
                 this.error = 'Error loading project data: ' + err.message
@@ -32,31 +45,6 @@ createApp({
             } finally {
                 this.loading = false
             }
-        },
-        
-        parseCSV(text) {
-            const lines = text.trim().split('\n')
-            if (lines.length < 2) {
-                return []
-            }
-            
-            // Get headers from first line
-            const headers = lines[0].split(',').map(h => h.trim())
-            
-            // Parse data rows
-            const projects = []
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',').map(v => v.trim())
-                const project = {}
-                
-                headers.forEach((header, index) => {
-                    project[header] = values[index] || ''
-                })
-                
-                projects.push(project)
-            }
-            
-            return projects
         }
     }
 }).mount('#app')

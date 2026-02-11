@@ -25,7 +25,7 @@ The CSV file (`public/projects.csv`) contains the following columns:
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v14 or higher)
+- Node.js (v20.19.0 or higher, or v22.12.0+)
 - npm or yarn
 
 ### Installation
